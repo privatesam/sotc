@@ -217,6 +217,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wear tracking endpoints
+  app.post("/api/watches/:id/wear", async (req, res) => {
+    try {
+      const watchId = parseInt(req.params.id);
+      const { date } = req.body;
+      
+      if (!date) {
+        return res.status(400).json({ message: "Date is required" });
+      }
+      
+      const watch = await storage.addWearDate(watchId, date);
+      if (!watch) {
+        return res.status(404).json({ message: "Watch not found" });
+      }
+      
+      res.json(watch);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to add wear date" });
+    }
+  });
+
+  app.delete("/api/watches/:id/wear/:date", async (req, res) => {
+    try {
+      const watchId = parseInt(req.params.id);
+      const { date } = req.params;
+      
+      const watch = await storage.removeWearDate(watchId, date);
+      if (!watch) {
+        return res.status(404).json({ message: "Watch not found" });
+      }
+      
+      res.json(watch);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove wear date" });
+    }
+  });
+
   // Delete image endpoint
   app.delete("/api/watches/:id/images/:imageIndex", async (req, res) => {
     try {

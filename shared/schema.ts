@@ -31,6 +31,9 @@ export const watches = pgTable("watches", {
   images: jsonb("images").$type<string[]>().default([]),
   primaryImageIndex: integer("primary_image_index").default(0),
   gridPosition: integer("grid_position"),
+  wearDates: jsonb("wear_dates").$type<string[]>().default([]), // ISO date strings
+  totalWearDays: integer("total_wear_days").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

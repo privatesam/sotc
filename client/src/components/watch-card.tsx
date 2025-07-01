@@ -11,9 +11,15 @@ export function WatchCard({ watch, onClick }: WatchCardProps) {
   const primaryImage = watch.images?.[watch.primaryImageIndex || 0];
   const serviceStatus = getServiceStatus(watch);
   
+  // Check if worn today
+  const today = new Date().toISOString().split('T')[0];
+  const wornToday = watch.wearDates?.includes(today);
+  
   return (
     <div 
-      className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg watch-card-hover cursor-pointer group"
+      className={`bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg watch-card-hover cursor-pointer group ${
+        wornToday ? 'border-green-400 bg-green-50' : 'border-slate-200'
+      }`}
       onClick={onClick}
     >
       <div className="aspect-square bg-slate-100 relative overflow-hidden">

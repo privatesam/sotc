@@ -41,6 +41,14 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - **Grid Customization**: Configurable grid layouts (columns/rows) per collection
 - **Service Monitoring**: Track service schedules and maintenance requirements
 - **Financial Tracking**: Watch valuations and collection value calculations
+- **Wear Tracking System**: Comprehensive daily wear logging with the following features:
+  - **WIT Button**: One-click "Wearing It Today" functionality for instant daily logging
+  - **Retrospective Logging**: Calendar picker for adding historical wear dates
+  - **Visual Indicators**: Watch cards change background color when worn today
+  - **Analytics Dashboard**: Bar charts showing total wear days and longest streaks
+  - **Streak Tracking**: Automatic calculation of consecutive wear day streaks
+  - **Collection Statistics**: Collapsible stats showing most worn watches and streak leaders
+  - **Wear History**: View and manage individual wear dates with removal capability
 
 ### Storage Strategy
 - **Development**: In-memory storage implementation for rapid prototyping
@@ -98,6 +106,7 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 
 ## Changelog
 - July 01, 2025. Initial setup
+- July 01, 2025. Added comprehensive wear tracking system with daily logging, analytics, and visual reporting
 
 ## User Preferences
 

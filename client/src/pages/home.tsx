@@ -7,8 +7,9 @@ import { WatchGrid } from "@/components/watch-grid";
 import { WatchDetailModal } from "@/components/watch-detail-modal";
 import { GridConfigModal } from "@/components/grid-config-modal";
 import { AddWatchModal } from "@/components/add-watch-modal";
+import { WearAnalyticsModal } from "@/components/wear-analytics-modal";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3 } from "lucide-react";
+import { Plus, Grid3X3, BarChart3 } from "lucide-react";
 import type { Watch } from "@shared/schema";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
   const [selectedWatch, setSelectedWatch] = useState<Watch | null>(null);
   const [isGridConfigOpen, setIsGridConfigOpen] = useState(false);
   const [isAddWatchOpen, setIsAddWatchOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
 
   const { data: collections = [] } = useCollections();
   const { data: watches = [] } = useWatches(currentCollectionId);
@@ -47,6 +49,15 @@ export default function Home() {
               >
                 <Grid3X3 className="w-4 h-4 mr-2" />
                 Configure Grid
+              </Button>
+              
+              <Button
+                onClick={() => setIsAnalyticsOpen(true)}
+                variant="outline"
+                size="sm"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analytics
               </Button>
             </div>
           </div>
@@ -88,6 +99,13 @@ export default function Home() {
         <AddWatchModal
           collectionId={currentCollectionId}
           onClose={() => setIsAddWatchOpen(false)}
+        />
+      )}
+
+      {isAnalyticsOpen && (
+        <WearAnalyticsModal
+          watches={watches}
+          onClose={() => setIsAnalyticsOpen(false)}
         />
       )}
     </div>

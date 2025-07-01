@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useBrands } from "@/hooks/use-brands";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { Edit, Save, Trash2, Upload, X } from "lucide-react";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { Edit, Save, Trash2, Upload, X, Watch as WatchIcon, Calendar as CalendarIcon } from "lucide-react";
 import type { Watch, UpdateWatch } from "@shared/schema";
 
 interface WatchDetailModalProps {
@@ -24,6 +26,8 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
   const [isEditing, setIsEditing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formData, setFormData] = useState<Partial<UpdateWatch>>({});
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -110,6 +114,38 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
     },
   });
 
+  const addWearDateMutation = useMutation({
+    mutationFn: async (date: string) => {
+      await apiRequest("POST", `/api/watches/${watch.id}/wear`, { date });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/watches"] });
+      toast({ title: "Wear date added successfully" });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to add wear date",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeWearDateMutation = useMutation({
+    mutationFn: async (date: string) => {
+      await apiRequest("DELETE", `/api/watches/${watch.id}/wear/${date}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/watches"] });
+      toast({ title: "Wear date removed successfully" });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to remove wear date",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSave = () => {
     updateWatchMutation.mutate({
       id: watch.id,
@@ -122,6 +158,29 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
     if (files && files.length > 0) {
       uploadImagesMutation.mutate(files);
     }
+  };
+
+  const handleWearToday = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (watch.wearDates?.includes(today)) {
+      removeWearDateMutation.mutate(today);
+    } else {
+      addWearDateMutation.mutate(today);
+    }
+  };
+
+  const handleAddWearDate = (date: Date | undefined) => {
+    if (date) {
+      const dateStr = date.toISOString().split('T')[0];
+      addWearDateMutation.mutate(dateStr);
+      setSelectedDate(undefined);
+      setIsCalendarOpen(false);
+    }
+  };
+
+  const isWornToday = () => {
+    const today = new Date().toISOString().split('T')[0];
+    return watch.wearDates?.includes(today) || false;
   };
 
   const getServiceStatus = () => {
@@ -389,6 +448,75 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   style={{ width: `${Math.min(serviceStatus.progress, 100)}%` }}
                 />
               </div>
+            </div>
+
+            {/* Wear Tracking */}
+            <div className="bg-slate-50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-slate-700">Wear Tracking</span>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={handleWearToday}
+                    size="sm"
+                    variant={isWornToday() ? "default" : "outline"}
+                    className={isWornToday() ? "bg-green-600 hover:bg-green-700" : ""}
+                  >
+                    <WatchIcon className="w-4 h-4 mr-2" />
+                    WIT
+                  </Button>
+                  
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <CalendarIcon className="w-4 h-4 mr-2" />
+                        Add Date
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={handleAddWearDate}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-slate-600">Total Days Worn:</span>
+                  <p className="font-medium">{watch.totalWearDays || 0}</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Longest Streak:</span>
+                  <p className="font-medium">{watch.longestStreak || 0} days</p>
+                </div>
+              </div>
+              
+              {watch.wearDates && watch.wearDates.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs text-slate-600 mb-2">Recent wear dates:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {watch.wearDates
+                      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+                      .slice(0, 10)
+                      .map((date) => (
+                        <Badge
+                          key={date}
+                          variant="secondary"
+                          className="text-xs cursor-pointer hover:bg-red-100"
+                          onClick={() => removeWearDateMutation.mutate(date)}
+                        >
+                          {new Date(date).toLocaleDateString('en-GB')}
+                          <X className="w-3 h-3 ml-1" />
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Details */}

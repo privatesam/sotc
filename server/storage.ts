@@ -32,6 +32,10 @@ export interface IStorage {
   createWatch(watch: InsertWatch): Promise<Watch>;
   updateWatch(watch: UpdateWatch): Promise<Watch | undefined>;
   deleteWatch(id: number): Promise<boolean>;
+  
+  // Wear tracking
+  addWearDate(watchId: number, date: string): Promise<Watch | undefined>;
+  removeWearDate(watchId: number, date: string): Promise<Watch | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -184,6 +188,9 @@ export class MemStorage implements IStorage {
       images: [],
       primaryImageIndex: 0,
       gridPosition: insertWatch.gridPosition || null,
+      wearDates: [],
+      totalWearDays: 0,
+      longestStreak: 0,
       createdAt: new Date(),
     };
     this.watches.set(watch.id, watch);
@@ -208,6 +215,9 @@ export class MemStorage implements IStorage {
       images: updateWatch.images ? [...updateWatch.images] : existing.images,
       primaryImageIndex: updateWatch.primaryImageIndex ?? existing.primaryImageIndex,
       gridPosition: updateWatch.gridPosition ?? existing.gridPosition,
+      wearDates: updateWatch.wearDates ? [...updateWatch.wearDates] : existing.wearDates,
+      totalWearDays: updateWatch.totalWearDays ?? existing.totalWearDays,
+      longestStreak: updateWatch.longestStreak ?? existing.longestStreak,
       createdAt: existing.createdAt,
     };
     this.watches.set(updated.id, updated);
@@ -216,6 +226,72 @@ export class MemStorage implements IStorage {
 
   async deleteWatch(id: number): Promise<boolean> {
     return this.watches.delete(id);
+  }
+
+  // Helper function to calculate streak
+  private calculateStreak(dates: string[]): number {
+    if (dates.length === 0) return 0;
+    
+    const sortedDates = dates.sort();
+    let maxStreak = 1;
+    let currentStreak = 1;
+    
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prevDate = new Date(sortedDates[i - 1]);
+      const currDate = new Date(sortedDates[i]);
+      const diffTime = Math.abs(currDate.getTime() - prevDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        currentStreak++;
+        maxStreak = Math.max(maxStreak, currentStreak);
+      } else {
+        currentStreak = 1;
+      }
+    }
+    
+    return maxStreak;
+  }
+
+  async addWearDate(watchId: number, date: string): Promise<Watch | undefined> {
+    const watch = this.watches.get(watchId);
+    if (!watch) return undefined;
+
+    const wearDates = [...(watch.wearDates || [])];
+    if (!wearDates.includes(date)) {
+      wearDates.push(date);
+      const longestStreak = this.calculateStreak(wearDates);
+      
+      const updated: Watch = {
+        ...watch,
+        wearDates,
+        totalWearDays: wearDates.length,
+        longestStreak,
+      };
+      
+      this.watches.set(watchId, updated);
+      return updated;
+    }
+    
+    return watch;
+  }
+
+  async removeWearDate(watchId: number, date: string): Promise<Watch | undefined> {
+    const watch = this.watches.get(watchId);
+    if (!watch) return undefined;
+
+    const wearDates = (watch.wearDates || []).filter(d => d !== date);
+    const longestStreak = this.calculateStreak(wearDates);
+    
+    const updated: Watch = {
+      ...watch,
+      wearDates,
+      totalWearDays: wearDates.length,
+      longestStreak,
+    };
+    
+    this.watches.set(watchId, updated);
+    return updated;
   }
 }
 
