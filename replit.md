@@ -109,6 +109,8 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - July 01, 2025. Added comprehensive wear tracking system with daily logging, analytics, and visual reporting
 - July 02, 2025. Converted from PostgreSQL to SQLite database for local storage
 - July 02, 2025. Fixed valuation field currency conversion (pounds to pence)
+- July 02, 2025. Fixed image upload real-time display - images now appear immediately without refresh
+- July 02, 2025. Fixed brand name display on watch cards - now shows actual brand instead of "Brand Name"
 
 ## User Preferences
 

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useBrands } from "@/hooks/use-brands";
 import type { Watch } from "@shared/schema";
 
 interface WatchCardProps {
@@ -10,10 +11,15 @@ interface WatchCardProps {
 export function WatchCard({ watch, onClick }: WatchCardProps) {
   const primaryImage = watch.images?.[watch.primaryImageIndex || 0];
   const serviceStatus = getServiceStatus(watch);
+  const { data: brands = [] } = useBrands();
   
   // Check if worn today
   const today = new Date().toISOString().split('T')[0];
   const wornToday = watch.wearDates?.includes(today);
+  
+  // Find the brand name
+  const brand = brands.find(b => b.id === watch.brandId);
+  const brandName = brand?.name || "Unknown Brand";
   
   return (
     <div 
@@ -56,7 +62,7 @@ export function WatchCard({ watch, onClick }: WatchCardProps) {
           </p>
         )}
         <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-600">Brand Name</span>
+          <span className="text-slate-600">{brandName}</span>
           <Badge 
             variant={serviceStatus.variant as any}
             className="text-xs"
