@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WatchCard } from "./watch-card";
 import { useToast } from "@/hooks/use-toast";
 import { useBrands } from "@/hooks/use-brands";
-import { Share2, Download, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import html2canvas from "html2canvas";
 import type { Watch, Collection } from "@shared/schema";
 
@@ -40,11 +39,6 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
     return sortedWatches[index] || null;
   });
 
-  const gridStyles = {
-    gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
-    gridTemplateRows: `repeat(${gridRows}, 1fr)`,
-  };
-
   const handleExport = async () => {
     if (!exportRef.current) return;
 
@@ -52,7 +46,7 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
     try {
       const canvas = await html2canvas(exportRef.current, {
         backgroundColor: '#f8fafc',
-        scale: 2, // Higher resolution
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -60,7 +54,6 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
         height: exportRef.current.scrollHeight,
       });
 
-      // Create download link
       const link = document.createElement('a');
       link.download = `${exportTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_collection.png`;
       link.href = canvas.toDataURL('image/png');
@@ -116,63 +109,139 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
           </div>
 
           {/* Preview */}
-          <div className="border-2 border-dashed border-slate-300 rounded-lg p-4">
+          <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 overflow-x-auto">
             <div
               ref={exportRef}
-              className="bg-slate-50 p-8 rounded-lg"
-              style={{ minWidth: '800px' }}
+              style={{ 
+                width: `${Math.max(gridColumns * 200, 800)}px`,
+                background: '#f8fafc',
+                padding: '40px',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                margin: '0 auto'
+              }}
             >
               {/* Header */}
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">{exportTitle}</h1>
-                <p className="text-slate-600">
-                  {watches.length} watch{watches.length !== 1 ? 'es' : ''} • 
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <h1 style={{ 
+                  fontSize: '32px', 
+                  fontWeight: 'bold', 
+                  color: '#1e293b',
+                  margin: '0 0 8px 0' 
+                }}>
+                  {exportTitle}
+                </h1>
+                <p style={{ 
+                  color: '#64748b',
+                  fontSize: '16px',
+                  margin: '0'
+                }}>
+                  {watches.length} watch{watches.length !== 1 ? 'es' : ''}
                   {watches.reduce((sum, w) => sum + (w.valuation || 0), 0) > 0 && 
-                    ` Total value: £${(watches.reduce((sum, w) => sum + (w.valuation || 0), 0) / 100).toLocaleString()}`
+                    ` • Total value: £${(watches.reduce((sum, w) => sum + (w.valuation || 0), 0) / 100).toLocaleString()}`
                   }
                 </p>
               </div>
 
               {/* Watch Grid */}
-              <div 
-                className="grid gap-6 mb-8" 
-                style={gridStyles}
-              >
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${gridColumns}, 180px)`,
+                gap: '20px',
+                justifyContent: 'center',
+                marginBottom: '40px'
+              }}>
                 {gridCells.map((watch, index) => {
                   if (watch) {
                     const brand = brands.find(b => b.id === watch.brandId);
                     return (
                       <div
                         key={watch.id}
-                        className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col"
-                        style={{ aspectRatio: '1/1', minHeight: '240px' }}
+                        style={{
+                          width: '180px',
+                          height: '220px',
+                          backgroundColor: 'white',
+                          borderRadius: '12px',
+                          border: '1px solid #e2e8f0',
+                          overflow: 'hidden',
+                          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                        }}
                       >
                         {/* Watch Image */}
-                        <div className="bg-slate-100 relative flex-1">
+                        <div style={{
+                          height: '140px',
+                          backgroundColor: '#f1f5f9',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
                           {watch.images && watch.images.length > 0 ? (
                             <img 
                               src={watch.images[0]} 
                               alt={watch.name}
-                              className="w-full h-full object-cover"
-                              crossOrigin="anonymous"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                if (nextElement) nextElement.style.display = 'flex';
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block'
                               }}
+                              crossOrigin="anonymous"
                             />
-                          ) : null}
-                          <div className="w-full h-full flex items-center justify-center text-slate-400" style={{ display: (watch.images && watch.images.length > 0) ? 'none' : 'flex' }}>
-                            No image
-                          </div>
+                          ) : (
+                            <div style={{
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#94a3b8',
+                              fontSize: '12px'
+                            }}>
+                              No Image
+                            </div>
+                          )}
                         </div>
                         
                         {/* Watch Info */}
-                        <div className="p-4 bg-white flex-shrink-0" style={{ minHeight: '80px' }}>
-                          <h3 className="font-semibold text-slate-900 text-sm leading-tight mb-1 line-clamp-1">{watch.name}</h3>
-                          <p className="text-xs text-slate-600 mb-1 line-clamp-1">{brand?.name || 'Unknown Brand'}</p>
+                        <div style={{
+                          height: '80px',
+                          padding: '12px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center'
+                        }}>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: '#1e293b',
+                            marginBottom: '4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineHeight: '1.2'
+                          }}>
+                            {watch.name}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            color: '#64748b',
+                            marginBottom: '2px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineHeight: '1.2'
+                          }}>
+                            {brand?.name || 'Unknown Brand'}
+                          </div>
                           {watch.model && (
-                            <p className="text-xs text-slate-500 line-clamp-1">{watch.model}</p>
+                            <div style={{
+                              fontSize: '11px',
+                              color: '#94a3b8',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              lineHeight: '1.2'
+                            }}>
+                              {watch.model}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -183,16 +252,30 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                   return (
                     <div
                       key={`empty-${index}`}
-                      className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50"
-                      style={{ aspectRatio: '1/1', minHeight: '200px' }}
-                    />
+                      style={{
+                        width: '180px',
+                        height: '220px',
+                        border: '2px dashed #cbd5e1',
+                        borderRadius: '12px',
+                        backgroundColor: '#f8fafc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <span style={{ color: '#94a3b8', fontSize: '12px' }}>Empty</span>
+                    </div>
                   );
                 })}
               </div>
 
               {/* Watermark */}
               {showWatermark && (
-                <div className="text-center text-slate-400 text-sm">
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: '#94a3b8', 
+                  fontSize: '14px' 
+                }}>
                   Created with SOTC - State of the Collection
                 </div>
               )}
