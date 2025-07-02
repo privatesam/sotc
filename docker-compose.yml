@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  sotc:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # Bind mount for SQLite database
+      - ./data/db:/app/data/db
+      # Bind mount for uploaded images
+      - ./data/uploads:/app/data/uploads
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/db/database.sqlite
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

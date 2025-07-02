@@ -91,17 +91,30 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - **Database**: Drizzle push for schema updates
 - **Assets**: Served from local filesystem
 
-### Production
+### Production (Docker)
 - **Build Process**: 
   - Vite builds client assets to `dist/public`
   - ESBuild bundles server code to `dist/index.js`
+- **Container**: Alpine Linux with Node.js 20
 - **Server**: Node.js serves both API and static assets
-- **Database**: Drizzle migrations for schema management
+- **Database**: SQLite with persistent volume mount
+- **Assets**: Local filesystem with persistent volume mount
 - **Environment**: Production-ready with proper error handling
 
+### Docker Configuration
+- **Base Image**: node:20-alpine
+- **Data Volumes**: 
+  - `/app/data/db` for SQLite database
+  - `/app/data/uploads` for watch images
+- **Environment Variables**: NODE_ENV, DATABASE_URL
+- **Port**: 5000 (configurable)
+- **Health Checks**: HTTP endpoint monitoring
+- **Restart Policy**: unless-stopped
+
 ### Configuration
-- Environment variables for database connectivity
-- Separate development and production configurations
+- Environment variables for database connectivity and file paths
+- Separate development and production upload directories
+- Automatic directory creation and permission setup
 - TypeScript compilation with strict mode enabled
 
 ## Changelog
@@ -115,6 +128,8 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - July 02, 2025. Added collection renaming functionality - can now rename any collection including SOTC
 - July 02, 2025. Optimized mobile responsiveness across all components with adaptive layouts and touch-friendly interfaces
 - July 02, 2025. Added collection image sharing feature - export clean grid layouts as images for social sharing
+- July 02, 2025. Completely redesigned image export with fixed-size layout to prevent text cutoff issues
+- July 02, 2025. Added comprehensive Docker deployment configuration with persistent data volumes and health monitoring
 
 ## User Preferences
 

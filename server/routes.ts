@@ -14,7 +14,10 @@ import path from "path";
 import fs from "fs";
 
 // Configure multer for file uploads
-const uploadDir = path.join(process.cwd(), "uploads");
+const uploadDir = process.env.NODE_ENV === 'production' 
+  ? path.join(process.cwd(), "data", "uploads")
+  : path.join(process.cwd(), "uploads");
+
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
