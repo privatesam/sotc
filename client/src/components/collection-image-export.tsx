@@ -144,11 +144,11 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                     return (
                       <div
                         key={watch.id}
-                        className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
-                        style={{ aspectRatio: '1/1', minHeight: '200px' }}
+                        className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col"
+                        style={{ aspectRatio: '1/1', minHeight: '240px' }}
                       >
                         {/* Watch Image */}
-                        <div className="bg-slate-100 relative" style={{ aspectRatio: '1/1', height: '70%' }}>
+                        <div className="bg-slate-100 relative flex-1">
                           {watch.images && watch.images.length > 0 ? (
                             <img 
                               src={watch.images[0]} 
@@ -168,11 +168,11 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                         </div>
                         
                         {/* Watch Info */}
-                        <div className="p-3" style={{ height: '30%' }}>
-                          <h3 className="font-semibold text-slate-900 text-sm leading-tight truncate">{watch.name}</h3>
-                          <p className="text-xs text-slate-600 truncate">{brand?.name || 'Unknown Brand'}</p>
+                        <div className="p-4 bg-white flex-shrink-0" style={{ minHeight: '80px' }}>
+                          <h3 className="font-semibold text-slate-900 text-sm leading-tight mb-1 line-clamp-1">{watch.name}</h3>
+                          <p className="text-xs text-slate-600 mb-1 line-clamp-1">{brand?.name || 'Unknown Brand'}</p>
                           {watch.model && (
-                            <p className="text-xs text-slate-500 truncate">{watch.model}</p>
+                            <p className="text-xs text-slate-500 line-clamp-1">{watch.model}</p>
                           )}
                         </div>
                       </div>

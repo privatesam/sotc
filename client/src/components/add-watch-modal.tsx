@@ -104,6 +104,12 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
           <DialogTitle>Add New Watch</DialogTitle>
         </DialogHeader>
 
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-6">
+          <p className="text-sm text-blue-800">
+            💡 <strong>Tip:</strong> After adding your watch, upload square (1:1) aspect ratio images for the best results in collection image exports
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           <div className="grid grid-cols-2 gap-4">
             <div>

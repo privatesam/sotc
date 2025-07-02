@@ -307,6 +307,9 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                     <span className="text-sm text-slate-600">Upload Images</span>
                   </div>
                 </Label>
+                <p className="text-xs text-slate-500 mt-2">
+                  💡 For best results in grid exports, use square (1:1) aspect ratio images
+                </p>
                 <input
                   id="image-upload"
                   type="file"
