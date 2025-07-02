@@ -28,25 +28,30 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
   const [formData, setFormData] = useState<Partial<UpdateWatch>>({});
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [currentWatch, setCurrentWatch] = useState<Watch>(watch);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: brands = [] } = useBrands();
 
-  const currentBrand = brands.find(b => b.id === watch.brandId);
+  const currentBrand = brands.find(b => b.id === currentWatch.brandId);
+
+  useEffect(() => {
+    setCurrentWatch(watch);
+  }, [watch]);
 
   useEffect(() => {
     setFormData({
-      name: watch.name,
-      brandId: watch.brandId,
-      model: watch.model || "",
-      purchaseDate: watch.purchaseDate ? formatDate(new Date(watch.purchaseDate)) : "",
-      lastServiced: watch.lastServiced ? formatDate(new Date(watch.lastServiced)) : "",
-      valuation: watch.valuation || 0,
-      servicePeriod: watch.servicePeriod || 5,
-      details: watch.details || "",
+      name: currentWatch.name,
+      brandId: currentWatch.brandId,
+      model: currentWatch.model || "",
+      purchaseDate: currentWatch.purchaseDate ? formatDate(new Date(currentWatch.purchaseDate)) : "",
+      lastServiced: currentWatch.lastServiced ? formatDate(new Date(currentWatch.lastServiced)) : "",
+      valuation: currentWatch.valuation || 0,
+      servicePeriod: currentWatch.servicePeriod || 5,
+      details: currentWatch.details || "",
     });
-  }, [watch]);
+  }, [currentWatch]);
 
   const updateWatchMutation = useMutation({
     mutationFn: async (data: UpdateWatch) => {
@@ -102,8 +107,14 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/watches"] });
+      // Update the current watch with new images immediately
+      if (data.images) {
+        setCurrentWatch(prev => ({ ...prev, images: data.images }));
+        // Reset current image index if needed
+        setCurrentImageIndex(0);
+      }
       toast({ title: "Images uploaded successfully" });
     },
     onError: () => {
@@ -162,7 +173,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
 
   const handleWearToday = () => {
     const today = new Date().toISOString().split('T')[0];
-    if (watch.wearDates?.includes(today)) {
+    if (currentWatch.wearDates?.includes(today)) {
       removeWearDateMutation.mutate(today);
     } else {
       addWearDateMutation.mutate(today);
@@ -180,16 +191,16 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
 
   const isWornToday = () => {
     const today = new Date().toISOString().split('T')[0];
-    return watch.wearDates?.includes(today) || false;
+    return currentWatch.wearDates?.includes(today) || false;
   };
 
   const getServiceStatus = () => {
-    if (!watch.lastServiced) {
+    if (!currentWatch.lastServiced) {
       return { label: "No Service Record", variant: "secondary", progress: 0 };
     }
 
-    const lastServicedDate = new Date(watch.lastServiced);
-    const servicePeriodMs = (watch.servicePeriod || 5) * 365 * 24 * 60 * 60 * 1000;
+    const lastServicedDate = new Date(currentWatch.lastServiced);
+    const servicePeriodMs = (currentWatch.servicePeriod || 5) * 365 * 24 * 60 * 60 * 1000;
     const nextServiceDate = new Date(lastServicedDate.getTime() + servicePeriodMs);
     const now = new Date();
     const totalPeriod = servicePeriodMs;
@@ -227,7 +238,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>{watch.name}</span>
+            <span>{currentWatch.name}</span>
             <div className="flex items-center space-x-3">
               {!isEditing ? (
                 <Button onClick={() => setIsEditing(true)} size="sm">
@@ -252,15 +263,15 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
           {/* Image Carousel */}
           <div className="space-y-4">
             <div className="aspect-square bg-slate-100 rounded-xl overflow-hidden relative">
-              {watch.images && watch.images.length > 0 ? (
+              {currentWatch.images && currentWatch.images.length > 0 ? (
                 <>
                   <img 
-                    src={watch.images[currentImageIndex]} 
-                    alt={`${watch.name} - Image ${currentImageIndex + 1}`}
+                    src={currentWatch.images[currentImageIndex]} 
+                    alt={`${currentWatch.name} - Image ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
-                    {currentImageIndex + 1} / {watch.images.length}
+                    {currentImageIndex + 1} / {currentWatch.images.length}
                   </div>
                 </>
               ) : (
@@ -271,9 +282,9 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
             </div>
             
             {/* Thumbnail Navigation */}
-            {watch.images && watch.images.length > 0 && (
+            {currentWatch.images && currentWatch.images.length > 0 && (
               <div className="flex space-x-3 overflow-x-auto pb-2">
-                {watch.images.map((image, index) => (
+                {currentWatch.images.map((image, index) => (
                   <img
                     key={index}
                     src={image}
@@ -320,7 +331,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   />
                 ) : (
-                  <p className="text-sm font-medium mt-1">{watch.name}</p>
+                  <p className="text-sm font-medium mt-1">{currentWatch.name}</p>
                 )}
               </div>
               <div>
@@ -355,7 +366,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
                 />
               ) : (
-                <p className="text-sm font-medium mt-1">{watch.model || "Not specified"}</p>
+                <p className="text-sm font-medium mt-1">{currentWatch.model || "Not specified"}</p>
               )}
             </div>
 
@@ -371,7 +382,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   />
                 ) : (
                   <p className="text-sm font-medium mt-1">
-                    {watch.purchaseDate ? formatDate(new Date(watch.purchaseDate)) : "Not specified"}
+                    {currentWatch.purchaseDate ? formatDate(new Date(currentWatch.purchaseDate)) : "Not specified"}
                   </p>
                 )}
               </div>
@@ -385,7 +396,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   />
                 ) : (
                   <p className="text-sm font-medium mt-1">
-                    {watch.lastServiced ? formatDate(new Date(watch.lastServiced)) : "Never serviced"}
+                    {currentWatch.lastServiced ? formatDate(new Date(currentWatch.lastServiced)) : "Never serviced"}
                   </p>
                 )}
               </div>
@@ -408,7 +419,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   />
                 ) : (
                   <p className="text-sm font-medium mt-1">
-                    {watch.valuation ? formatCurrency(watch.valuation) : "Not specified"}
+                    {currentWatch.valuation ? formatCurrency(currentWatch.valuation) : "Not specified"}
                   </p>
                 )}
               </div>
@@ -430,7 +441,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                     </SelectContent>
                   </Select>
                 ) : (
-                  <p className="text-sm font-medium mt-1">{watch.servicePeriod || 5} years</p>
+                  <p className="text-sm font-medium mt-1">{currentWatch.servicePeriod || 5} years</p>
                 )}
               </div>
             </div>
@@ -493,19 +504,19 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-slate-600">Total Days Worn:</span>
-                  <p className="font-medium">{watch.totalWearDays || 0}</p>
+                  <p className="font-medium">{currentWatch.totalWearDays || 0}</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Longest Streak:</span>
-                  <p className="font-medium">{watch.longestStreak || 0} days</p>
+                  <p className="font-medium">{currentWatch.longestStreak || 0} days</p>
                 </div>
               </div>
               
-              {watch.wearDates && watch.wearDates.length > 0 && (
+              {currentWatch.wearDates && currentWatch.wearDates.length > 0 && (
                 <div className="mt-4">
                   <p className="text-xs text-slate-600 mb-2">Recent wear dates:</p>
                   <div className="flex flex-wrap gap-1">
-                    {watch.wearDates
+                    {currentWatch.wearDates
                       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
                       .slice(0, 10)
                       .map((date) => (
@@ -536,7 +547,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                 />
               ) : (
                 <p className="text-sm mt-1 whitespace-pre-wrap">
-                  {watch.details || "No additional details"}
+                  {currentWatch.details || "No additional details"}
                 </p>
               )}
             </div>
