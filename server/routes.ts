@@ -164,6 +164,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch update watch positions (must come before /:id routes)
+  app.put("/api/watches/positions", async (req, res) => {
+    try {
+      console.log("Received positions update:", req.body);
+      const positions = req.body as { id: number; gridPosition: number }[];
+      
+      // Validate the request body
+      if (!Array.isArray(positions)) {
+        return res.status(400).json({ message: "Request body must be an array" });
+      }
+      
+      for (const pos of positions) {
+        if (typeof pos.id !== 'number' || typeof pos.gridPosition !== 'number') {
+          return res.status(400).json({ message: "Each position must have id and gridPosition as numbers" });
+        }
+      }
+      
+      await storage.updateWatchPositions(positions);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating watch positions:", error);
+      res.status(500).json({ message: "Failed to update watch positions" });
+    }
+  });
+
   app.put("/api/watches/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -188,17 +213,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete watch" });
-    }
-  });
-
-  // Batch update watch positions
-  app.put("/api/watches/positions", async (req, res) => {
-    try {
-      const positions = req.body as { id: number; gridPosition: number }[];
-      await storage.updateWatchPositions(positions);
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to update watch positions" });
     }
   });
 
