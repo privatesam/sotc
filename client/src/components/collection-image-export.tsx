@@ -158,12 +158,13 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                         key={watch.id}
                         style={{
                           width: '180px',
-                          height: '220px',
+                          height: '230px',
                           backgroundColor: 'white',
                           borderRadius: '12px',
                           border: '1px solid #e2e8f0',
-                          overflow: 'hidden',
-                          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                          overflow: 'visible',
+                          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                          marginBottom: '10px'
                         }}
                       >
                         {/* Watch Image */}
@@ -202,43 +203,50 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                         
                         {/* Watch Info */}
                         <div style={{
-                          height: '80px',
-                          padding: '12px',
+                          height: '90px',
+                          padding: '10px 12px',
                           display: 'flex',
                           flexDirection: 'column',
-                          justifyContent: 'center'
+                          justifyContent: 'flex-start',
+                          overflow: 'visible',
+                          position: 'relative'
                         }}>
                           <div style={{
-                            fontSize: '14px',
+                            fontSize: '12px',
                             fontWeight: '600',
                             color: '#1e293b',
-                            marginBottom: '4px',
+                            marginBottom: '3px',
+                            lineHeight: '1.3',
+                            height: '32px',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            lineHeight: '1.2'
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            wordBreak: 'break-word'
                           }}>
                             {watch.name}
                           </div>
                           <div style={{
-                            fontSize: '12px',
+                            fontSize: '10px',
                             color: '#64748b',
                             marginBottom: '2px',
+                            lineHeight: '1.2',
+                            height: '12px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            lineHeight: '1.2'
+                            whiteSpace: 'nowrap'
                           }}>
                             {brand?.name || 'Unknown Brand'}
                           </div>
                           {watch.model && (
                             <div style={{
-                              fontSize: '11px',
+                              fontSize: '9px',
                               color: '#94a3b8',
+                              lineHeight: '1.2',
+                              height: '11px',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              lineHeight: '1.2'
+                              whiteSpace: 'nowrap'
                             }}>
                               {watch.model}
                             </div>
@@ -254,13 +262,14 @@ export function CollectionImageExport({ watches, collection, onClose }: Collecti
                       key={`empty-${index}`}
                       style={{
                         width: '180px',
-                        height: '220px',
+                        height: '230px',
                         border: '2px dashed #cbd5e1',
                         borderRadius: '12px',
                         backgroundColor: '#f8fafc',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        marginBottom: '10px'
                       }}
                     >
                       <span style={{ color: '#94a3b8', fontSize: '12px' }}>Empty</span>
