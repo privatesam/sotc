@@ -191,6 +191,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch update watch positions
+  app.put("/api/watches/positions", async (req, res) => {
+    try {
+      const positions = req.body as { id: number; gridPosition: number }[];
+      await storage.updateWatchPositions(positions);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update watch positions" });
+    }
+  });
+
   // Image upload endpoint
   app.post("/api/watches/:id/images", upload.array('images', 10), async (req, res) => {
     try {

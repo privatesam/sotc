@@ -36,6 +36,9 @@ export interface IStorage {
   // Wear tracking
   addWearDate(watchId: number, date: string): Promise<Watch | undefined>;
   removeWearDate(watchId: number, date: string): Promise<Watch | undefined>;
+  
+  // Batch operations
+  updateWatchPositions(positions: { id: number; gridPosition: number }[]): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -293,6 +296,15 @@ export class MemStorage implements IStorage {
     this.watches.set(watchId, updated);
     return updated;
   }
+
+  async updateWatchPositions(positions: { id: number; gridPosition: number }[]): Promise<void> {
+    for (const { id, gridPosition } of positions) {
+      const watch = this.watches.get(id);
+      if (watch) {
+        this.watches.set(id, { ...watch, gridPosition });
+      }
+    }
+  }
 }
 
 import { db } from "./db";
@@ -495,6 +507,15 @@ export class DatabaseStorage implements IStorage {
       totalWearDays: updatedWearDates.length,
       longestStreak,
     });
+  }
+
+  async updateWatchPositions(positions: { id: number; gridPosition: number }[]): Promise<void> {
+    for (const { id, gridPosition } of positions) {
+      await db
+        .update(watches)
+        .set({ gridPosition })
+        .where(eq(watches.id, id));
+    }
   }
 }
 
