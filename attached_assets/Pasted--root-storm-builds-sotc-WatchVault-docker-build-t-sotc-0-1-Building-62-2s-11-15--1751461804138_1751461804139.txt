@@ -1,0 +1,44 @@
+
+root@storm:~/builds/sotc/WatchVault# docker build -t sotc:0.1 .
+[+] Building 62.2s (11/15)                                                                                                                                                              docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                              0.0s
+ => => transferring dockerfile: 745B                                                                                                                                                              0.0s
+ => [internal] load metadata for docker.io/library/node:20-alpine                                                                                                                                 1.3s
+ => [internal] load .dockerignore                                                                                                                                                                 0.0s
+ => => transferring context: 231B                                                                                                                                                                 0.0s
+ => [ 1/11] FROM docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11                                                                        12.7s
+ => => resolve docker.io/library/node:20-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11                                                                           0.0s
+ => => sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11 7.67kB / 7.67kB                                                                                                    0.0s
+ => => sha256:6d6b06f970b08f9ebbe65a5561c20e8623d6afa612ea035bbbe38fb78dd94b14 1.72kB / 1.72kB                                                                                                    0.0s
+ => => sha256:bfd94ebedbdada46a3d3447f6bc2de4d271021b3a45a76821cca6afa361ea94d 6.21kB / 6.21kB                                                                                                    0.0s
+ => => sha256:5432aa916e0868c8c9385ef60226d5ef530f13fe7c28fc13c054de1df6d006cd 42.99MB / 42.99MB                                                                                                 10.9s
+ => => sha256:2506673f55362e86b6c8a2ab9c01541ae636887386c92d06e01286d3ddd83871 1.26MB / 1.26MB                                                                                                    0.9s
+ => => sha256:98c4889b578e94078411d6c14fe8f5daa0303d43e82bbf84d5787ab657c42428 445B / 445B                                                                                                        0.4s
+ => => extracting sha256:5432aa916e0868c8c9385ef60226d5ef530f13fe7c28fc13c054de1df6d006cd                                                                                                         1.5s
+ => => extracting sha256:2506673f55362e86b6c8a2ab9c01541ae636887386c92d06e01286d3ddd83871                                                                                                         0.1s
+ => => extracting sha256:98c4889b578e94078411d6c14fe8f5daa0303d43e82bbf84d5787ab657c42428                                                                                                         0.0s
+ => [internal] load build context                                                                                                                                                                 0.0s
+ => => transferring context: 1.43MB                                                                                                                                                               0.0s
+ => [ 2/11] WORKDIR /app                                                                                                                                                                          5.2s
+ => [ 3/11] RUN apk add --no-cache python3 make g++                                                                                                                                               9.8s
+ => [ 4/11] COPY package*.json ./                                                                                                                                                                 5.1s
+ => [ 5/11] RUN npm ci --only=production                                                                                                                                                         17.9s
+ => [ 6/11] COPY . .                                                                                                                                                                              5.6s
+ => ERROR [ 7/11] RUN npm run build                                                                                                                                                               4.7s
+------
+ > [ 7/11] RUN npm run build:
+0.247
+0.247 > rest-express@1.0.0 build
+0.247 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+0.247
+0.250 sh: vite: not found
+------
+Dockerfile:20
+--------------------
+  18 |
+  19 |     # Build the application
+  20 | >>> RUN npm run build
+  21 |
+  22 |     # Copy startup script and make it executable
+--------------------
+ERROR: failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 127
