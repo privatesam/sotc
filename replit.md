@@ -22,10 +22,10 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - **File Handling**: Multer for image upload processing
 
 ### Database & ORM
-- **Database**: PostgreSQL (configured via Drizzle)
+- **Database**: SQLite (local database file)
 - **ORM**: Drizzle ORM with Zod schema validation
-- **Migrations**: Drizzle Kit for database schema management
-- **Connection**: Neon Database serverless PostgreSQL
+- **Migrations**: Manual table creation with SQL
+- **Connection**: Better-sqlite3 for local SQLite database
 
 ## Key Components
 
@@ -51,8 +51,8 @@ SOTC is a full-stack web application for managing watch collections. It allows u
   - **Wear History**: View and manage individual wear dates with removal capability
 
 ### Storage Strategy
-- **Development**: In-memory storage implementation for rapid prototyping
-- **Production**: PostgreSQL database with Drizzle ORM
+- **Development**: SQLite database for persistent local storage
+- **Production**: SQLite database with automatic table creation
 - **File Storage**: Local filesystem for uploaded images with organized directory structure
 
 ## Data Flow

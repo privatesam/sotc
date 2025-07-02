@@ -295,4 +295,207 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+
+export class DatabaseStorage implements IStorage {
+  async initialize() {
+    try {
+      // Check if we have any collections, if not, create default data
+      const existingCollections = await db.select().from(collections);
+      
+      if (existingCollections.length === 0) {
+        // Create default collection
+        await db
+          .insert(collections)
+          .values({
+            name: "SOTC",
+            description: "State of the Collection",
+            gridColumns: 4,
+            gridRows: 3,
+          });
+
+        // Create default brands
+        const defaultBrands = [
+          { name: "Rolex", isCustom: false },
+          { name: "Omega", isCustom: false },
+          { name: "Seiko", isCustom: false },
+          { name: "Tudor", isCustom: false },
+          { name: "Casio", isCustom: false },
+          { name: "Tissot", isCustom: false },
+          { name: "Breitling", isCustom: false },
+          { name: "TAG Heuer", isCustom: false },
+          { name: "Citizen", isCustom: false },
+          { name: "Patek Philippe", isCustom: false },
+          { name: "Audemars Piguet", isCustom: false },
+          { name: "Vacheron Constantin", isCustom: false },
+          { name: "IWC", isCustom: false },
+          { name: "Jaeger-LeCoultre", isCustom: false },
+          { name: "Panerai", isCustom: false },
+          { name: "Zenith", isCustom: false },
+          { name: "Hublot", isCustom: false },
+          { name: "Richard Mille", isCustom: false },
+          { name: "Cartier", isCustom: false },
+          { name: "Longines", isCustom: false },
+        ];
+
+        await db.insert(brands).values(defaultBrands);
+      }
+    } catch (error) {
+      console.error("Database initialization error:", error);
+    }
+  }
+
+  async getCollections(): Promise<Collection[]> {
+    return await db.select().from(collections);
+  }
+
+  async getCollection(id: number): Promise<Collection | undefined> {
+    const [collection] = await db.select().from(collections).where(eq(collections.id, id));
+    return collection || undefined;
+  }
+
+  async createCollection(insertCollection: InsertCollection): Promise<Collection> {
+    const [collection] = await db
+      .insert(collections)
+      .values(insertCollection)
+      .returning();
+    return collection;
+  }
+
+  async updateCollection(updateCollection: UpdateCollection): Promise<Collection | undefined> {
+    if (!updateCollection.id) return undefined;
+    
+    const [updated] = await db
+      .update(collections)
+      .set(updateCollection)
+      .where(eq(collections.id, updateCollection.id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteCollection(id: number): Promise<boolean> {
+    const result = await db.delete(collections).where(eq(collections.id, id));
+    return result.changes > 0;
+  }
+
+  async getBrands(): Promise<Brand[]> {
+    return await db.select().from(brands);
+  }
+
+  async getBrand(id: number): Promise<Brand | undefined> {
+    const [brand] = await db.select().from(brands).where(eq(brands.id, id));
+    return brand || undefined;
+  }
+
+  async getBrandByName(name: string): Promise<Brand | undefined> {
+    const [brand] = await db.select().from(brands).where(eq(brands.name, name));
+    return brand || undefined;
+  }
+
+  async createBrand(insertBrand: InsertBrand): Promise<Brand> {
+    const [brand] = await db
+      .insert(brands)
+      .values(insertBrand)
+      .returning();
+    return brand;
+  }
+
+  async getWatches(collectionId?: number): Promise<Watch[]> {
+    if (collectionId) {
+      return await db.select().from(watches).where(eq(watches.collectionId, collectionId));
+    }
+    return await db.select().from(watches);
+  }
+
+  async getWatch(id: number): Promise<Watch | undefined> {
+    const [watch] = await db.select().from(watches).where(eq(watches.id, id));
+    return watch || undefined;
+  }
+
+  async createWatch(insertWatch: InsertWatch): Promise<Watch> {
+    const [watch] = await db
+      .insert(watches)
+      .values(insertWatch)
+      .returning();
+    return watch;
+  }
+
+  async updateWatch(updateWatch: UpdateWatch): Promise<Watch | undefined> {
+    if (!updateWatch.id) return undefined;
+    
+    const [updated] = await db
+      .update(watches)
+      .set(updateWatch)
+      .where(eq(watches.id, updateWatch.id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteWatch(id: number): Promise<boolean> {
+    const result = await db.delete(watches).where(eq(watches.id, id));
+    return result.changes > 0;
+  }
+
+  private calculateStreak(dates: string[]): number {
+    if (dates.length === 0) return 0;
+    
+    const sortedDates = dates.sort();
+    let currentStreak = 1;
+    let maxStreak = 1;
+    
+    for (let i = 1; i < sortedDates.length; i++) {
+      const currentDate = new Date(sortedDates[i]);
+      const previousDate = new Date(sortedDates[i - 1]);
+      const dayDifference = Math.floor((currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (dayDifference === 1) {
+        currentStreak++;
+        maxStreak = Math.max(maxStreak, currentStreak);
+      } else {
+        currentStreak = 1;
+      }
+    }
+    
+    return maxStreak;
+  }
+
+  async addWearDate(watchId: number, date: string): Promise<Watch | undefined> {
+    const watch = await this.getWatch(watchId);
+    if (!watch) return undefined;
+
+    const wearDates = Array.isArray(watch.wearDates) ? watch.wearDates : [];
+    
+    if (!wearDates.includes(date)) {
+      const updatedWearDates = [...wearDates, date];
+      const longestStreak = this.calculateStreak(updatedWearDates);
+      
+      return await this.updateWatch({
+        id: watchId,
+        wearDates: updatedWearDates,
+        totalWearDays: updatedWearDates.length,
+        longestStreak,
+      });
+    }
+    
+    return watch;
+  }
+
+  async removeWearDate(watchId: number, date: string): Promise<Watch | undefined> {
+    const watch = await this.getWatch(watchId);
+    if (!watch) return undefined;
+
+    const wearDates = Array.isArray(watch.wearDates) ? watch.wearDates : [];
+    const updatedWearDates = wearDates.filter(d => d !== date);
+    const longestStreak = this.calculateStreak(updatedWearDates);
+    
+    return await this.updateWatch({
+      id: watchId,
+      wearDates: updatedWearDates,
+      totalWearDays: updatedWearDates.length,
+      longestStreak,
+    });
+  }
+}
+
+export const storage = new DatabaseStorage();

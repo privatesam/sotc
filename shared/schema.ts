@@ -1,40 +1,40 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const collections = pgTable("collections", {
-  id: serial("id").primaryKey(),
+export const collections = sqliteTable("collections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
   gridColumns: integer("grid_columns").notNull().default(4),
   gridRows: integer("grid_rows").notNull().default(3),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
-export const brands = pgTable("brands", {
-  id: serial("id").primaryKey(),
+export const brands = sqliteTable("brands", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
-  isCustom: boolean("is_custom").notNull().default(false),
+  isCustom: integer("is_custom", { mode: "boolean" }).notNull().default(false),
 });
 
-export const watches = pgTable("watches", {
-  id: serial("id").primaryKey(),
+export const watches = sqliteTable("watches", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   collectionId: integer("collection_id").notNull(),
   name: text("name").notNull(),
   brandId: integer("brand_id").notNull(),
   model: text("model"),
-  purchaseDate: timestamp("purchase_date"),
-  lastServiced: timestamp("last_serviced"),
+  purchaseDate: text("purchase_date"),
+  lastServiced: text("last_serviced"),
   servicePeriod: integer("service_period").notNull().default(5), // years
   valuation: integer("valuation"), // in pence
   details: text("details"),
-  images: jsonb("images").$type<string[]>().default([]),
+  images: text("images", { mode: "json" }).$type<string[]>().default([]),
   primaryImageIndex: integer("primary_image_index").default(0),
   gridPosition: integer("grid_position"),
-  wearDates: jsonb("wear_dates").$type<string[]>().default([]), // ISO date strings
+  wearDates: text("wear_dates", { mode: "json" }).$type<string[]>().default([]), // ISO date strings
   totalWearDays: integer("total_wear_days").notNull().default(0),
   longestStreak: integer("longest_streak").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
 export const insertCollectionSchema = createInsertSchema(collections).omit({
