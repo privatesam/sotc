@@ -119,12 +119,12 @@ export function CollectionSwitcher({
 
   return (
     <>
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
         <Select 
           value={currentCollectionId.toString()} 
           onValueChange={(value) => onCollectionChange(parseInt(value))}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -136,23 +136,29 @@ export function CollectionSwitcher({
           </SelectContent>
         </Select>
         
-        <Button
-          onClick={() => currentCollection && handleEdit(currentCollection)}
-          size="sm"
-          variant="outline"
-          disabled={!currentCollection}
-        >
-          <Edit2 className="w-4 h-4 mr-2" />
-          Rename
-        </Button>
-        
-        <Button
-          onClick={() => setIsCreateModalOpen(true)}
-          size="sm"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Collection
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => currentCollection && handleEdit(currentCollection)}
+            size="sm"
+            variant="outline"
+            disabled={!currentCollection}
+            className="flex-1 sm:flex-none"
+          >
+            <Edit2 className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Rename</span>
+            <span className="sm:hidden">Edit</span>
+          </Button>
+          
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            size="sm"
+            className="flex-1 sm:flex-none"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">New Collection</span>
+            <span className="sm:hidden">New</span>
+          </Button>
+        </div>
       </div>
 
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>

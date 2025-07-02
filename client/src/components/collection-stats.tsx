@@ -129,22 +129,22 @@ export function CollectionStats({ watches }: CollectionStatsProps) {
         </div>
         
         <CollapsibleContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
             {stats.map((stat, index) => (
               <Card key={index} className="border border-slate-200">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-600">{stat.title}</p>
-                      <p className="text-2xl font-bold text-slate-900 truncate" title={stat.value}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">{stat.title}</p>
+                      <p className="text-lg sm:text-2xl font-bold text-slate-900 truncate" title={stat.value}>
                         {stat.value}
                       </p>
                       {stat.subtitle && (
-                        <p className="text-sm text-slate-500">{stat.subtitle}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">{stat.subtitle}</p>
                       )}
                     </div>
-                    <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
-                      <stat.icon className={`${stat.iconColor} w-6 h-6`} />
+                    <div className={`w-8 h-8 sm:w-12 sm:h-12 ${stat.iconBg} rounded-lg flex items-center justify-center ml-2`}>
+                      <stat.icon className={`${stat.iconColor} w-4 h-4 sm:w-6 sm:h-6`} />
                     </div>
                   </div>
                 </CardContent>
@@ -152,22 +152,22 @@ export function CollectionStats({ watches }: CollectionStatsProps) {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
             {wearStats.map((stat, index) => (
               <Card key={index} className="border border-slate-200">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-600">{stat.title}</p>
-                      <p className="text-xl font-bold text-slate-900 truncate" title={stat.value}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">{stat.title}</p>
+                      <p className="text-lg sm:text-xl font-bold text-slate-900 truncate" title={stat.value}>
                         {stat.value}
                       </p>
                       {stat.subtitle && (
-                        <p className="text-sm text-slate-500">{stat.subtitle}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">{stat.subtitle}</p>
                       )}
                     </div>
-                    <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
-                      <stat.icon className={`${stat.iconColor} w-6 h-6`} />
+                    <div className={`w-8 h-8 sm:w-12 sm:h-12 ${stat.iconBg} rounded-lg flex items-center justify-center ml-2`}>
+                      <stat.icon className={`${stat.iconColor} w-4 h-4 sm:w-6 sm:h-6`} />
                     </div>
                   </div>
                 </CardContent>

@@ -235,15 +235,15 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>{currentWatch.name}</span>
-            <div className="flex items-center space-x-3">
+          <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <span className="text-lg sm:text-xl font-semibold">{currentWatch.name}</span>
+            <div className="flex items-center gap-2">
               {!isEditing ? (
                 <Button onClick={() => setIsEditing(true)} size="sm">
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit
+                  <span className="hidden sm:inline">Edit</span>
                 </Button>
               ) : (
                 <Button 
@@ -252,14 +252,14 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   disabled={updateWatchMutation.isPending}
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save
+                  <span className="hidden sm:inline">Save</span>
                 </Button>
               )}
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mt-4 sm:mt-6">
           {/* Image Carousel */}
           <div className="space-y-4">
             <div className="aspect-square bg-slate-100 rounded-xl overflow-hidden relative">
@@ -468,14 +468,17 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
 
             {/* Wear Tracking */}
             <div className="bg-slate-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
                 <span className="text-sm font-medium text-slate-700">Wear Tracking</span>
-                <div className="flex space-x-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <Button
                     onClick={handleWearToday}
                     size="sm"
                     variant={isWornToday() ? "default" : "outline"}
-                    className={isWornToday() ? "bg-green-600 hover:bg-green-700" : ""}
+                    className={cn(
+                      "flex-1 sm:flex-none",
+                      isWornToday() ? "bg-green-600 hover:bg-green-700" : ""
+                    )}
                   >
                     <WatchIcon className="w-4 h-4 mr-2" />
                     WIT
@@ -483,9 +486,10 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                   
                   <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                         <CalendarIcon className="w-4 h-4 mr-2" />
-                        Add Date
+                        <span className="hidden sm:inline">Add Date</span>
+                        <span className="sm:hidden">Add</span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="end">

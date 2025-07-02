@@ -29,36 +29,44 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-0 sm:h-16 gap-4 sm:gap-0">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-slate-900">SOTC</h1>
-              <span className="text-slate-500 text-sm">State of the Collection</span>
+              <span className="text-slate-500 text-sm hidden sm:inline">State of the Collection</span>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <CollectionSwitcher
-                collections={collections}
-                currentCollectionId={currentCollectionId}
-                onCollectionChange={setCurrentCollectionId}
-              />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <div className="w-full sm:w-auto">
+                <CollectionSwitcher
+                  collections={collections}
+                  currentCollectionId={currentCollectionId}
+                  onCollectionChange={setCurrentCollectionId}
+                />
+              </div>
               
-              <Button
-                onClick={() => setIsGridConfigOpen(true)}
-                variant="outline"
-                size="sm"
-              >
-                <Grid3X3 className="w-4 h-4 mr-2" />
-                Configure Grid
-              </Button>
-              
-              <Button
-                onClick={() => setIsAnalyticsOpen(true)}
-                variant="outline"
-                size="sm"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analytics
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setIsGridConfigOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none"
+                >
+                  <Grid3X3 className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Configure Grid</span>
+                  <span className="sm:hidden">Grid</span>
+                </Button>
+                
+                <Button
+                  onClick={() => setIsAnalyticsOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Analytics</span>
+                  <span className="sm:hidden">Stats</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

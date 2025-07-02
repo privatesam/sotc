@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { WatchCard } from "./watch-card";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, GripVertical } from "lucide-react";
@@ -138,8 +139,15 @@ export function WatchGrid({ watches, collection, onWatchClick, onAddWatch }: Wat
     return sortedWatches[index] || null;
   });
 
+  const isMobile = useIsMobile();
+  
+  // Responsive grid: 1 column on mobile, 2 on tablet, configured columns on desktop
+  const effectiveColumns = isMobile ? 1 : (window.innerWidth < 1024 ? 2 : gridColumns);
+  const effectiveRows = isMobile ? Math.ceil(totalCells / 1) : (window.innerWidth < 1024 ? Math.ceil(totalCells / 2) : gridRows);
+  
   const gridStyles = {
-    gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
+    gridTemplateColumns: `repeat(${effectiveColumns}, 1fr)`,
+    gridTemplateRows: `repeat(${effectiveRows}, 1fr)`,
   };
 
   return (
@@ -148,7 +156,7 @@ export function WatchGrid({ watches, collection, onWatchClick, onAddWatch }: Wat
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="grid gap-6" style={gridStyles}>
+      <div className="grid gap-4 sm:gap-6" style={gridStyles}>
         <SortableContext
           items={sortedWatches.map(w => w.id)}
           strategy={rectSortingStrategy}
