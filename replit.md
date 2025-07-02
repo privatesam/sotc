@@ -114,6 +114,7 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - July 02, 2025. Added watch-themed favicon matching the WIT button icon
 - July 02, 2025. Added collection renaming functionality - can now rename any collection including SOTC
 - July 02, 2025. Optimized mobile responsiveness across all components with adaptive layouts and touch-friendly interfaces
+- July 02, 2025. Added collection image sharing feature - export clean grid layouts as images for social sharing
 
 ## User Preferences
 

@@ -8,8 +8,9 @@ import { WatchDetailModal } from "@/components/watch-detail-modal";
 import { GridConfigModal } from "@/components/grid-config-modal";
 import { AddWatchModal } from "@/components/add-watch-modal";
 import { WearAnalyticsModal } from "@/components/wear-analytics-modal";
+import { CollectionImageExport } from "@/components/collection-image-export";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, BarChart3 } from "lucide-react";
+import { Plus, Grid3X3, BarChart3, Share2 } from "lucide-react";
 import type { Watch } from "@shared/schema";
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   const [isGridConfigOpen, setIsGridConfigOpen] = useState(false);
   const [isAddWatchOpen, setIsAddWatchOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [isImageExportOpen, setIsImageExportOpen] = useState(false);
 
   const { data: collections = [] } = useCollections();
   const { data: watches = [] } = useWatches(currentCollectionId);
@@ -45,6 +47,18 @@ export default function Home() {
               </div>
               
               <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setIsImageExportOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none"
+                  disabled={watches.length === 0}
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Share as Image</span>
+                  <span className="sm:hidden">Share</span>
+                </Button>
+                
                 <Button
                   onClick={() => setIsGridConfigOpen(true)}
                   variant="outline"
@@ -114,6 +128,14 @@ export default function Home() {
         <WearAnalyticsModal
           watches={watches}
           onClose={() => setIsAnalyticsOpen(false)}
+        />
+      )}
+
+      {isImageExportOpen && currentCollection && (
+        <CollectionImageExport
+          watches={watches}
+          collection={currentCollection}
+          onClose={() => setIsImageExportOpen(false)}
         />
       )}
     </div>
