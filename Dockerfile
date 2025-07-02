@@ -16,8 +16,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Copy and run build script
+COPY build.sh ./
+RUN chmod +x build.sh && ./build.sh
 
 # Remove dev dependencies to reduce image size
 RUN npm prune --production

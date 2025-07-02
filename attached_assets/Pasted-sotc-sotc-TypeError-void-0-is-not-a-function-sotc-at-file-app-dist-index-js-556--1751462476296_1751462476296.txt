@@ -1,0 +1,61 @@
+sotc  | 
+sotc  | TypeError: (void 0) is not a function
+sotc  |     at file:///app/dist/index.js:556:35
+sotc  |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+sotc  |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+sotc  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+sotc  | 
+sotc  | Node.js v20.19.3
+sotc exited with code 0
+sotc  | Initializing database...
+sotc  | 
+sotc  | > rest-express@1.0.0 db:push
+sotc  | > drizzle-kit push
+sotc  | 
+sotc  | No config path provided, using default 'drizzle.config.ts'
+sotc  | Reading config file '/app/drizzle.config.ts'
+sotc  | Using 'pg' driver for database querying
+sotc  | [⣷] Pulling schema from database...
+sotc  | AggregateError [ECONNREFUSED]: 
+sotc  |     at /app/node_modules/pg-pool/index.js:45:11
+sotc  |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+sotc  |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:66575:26)
+sotc  |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:18700:25) {
+sotc  |   code: 'ECONNREFUSED',
+sotc  |   [errors]: [
+sotc  |     Error: connect ECONNREFUSED ::1:5432
+sotc  |         at createConnectionError (node:net:1652:14)
+sotc  |         at afterConnectMultiple (node:net:1682:16) {
+sotc  |       errno: -111,
+sotc  |       code: 'ECONNREFUSED',
+sotc  |       syscall: 'connect',
+sotc  |       address: '::1',
+sotc  |       port: 5432
+sotc  |     },
+sotc  |     Error: connect ECONNREFUSED 127.0.0.1:5432
+sotc  |         at createConnectionError (node:net:1652:14)
+sotc  |         at afterConnectMultiple (node:net:1682:16) {
+sotc  |       errno: -111,
+sotc  |       code: 'ECONNREFUSED',
+sotc  |       syscall: 'connect',
+sotc  |       address: '127.0.0.1',
+sotc  |       port: 5432
+sotc  |     }
+sotc  |   ]
+sotc  | }
+sotc  | 
+sotc  | > rest-express@1.0.0 start
+sotc  | > NODE_ENV=production node dist/index.js
+sotc  | 
+sotc  | file:///app/dist/index.js:556
+sotc  | var vite_config_default = (void 0)({
+sotc  |                                   ^
+sotc  | 
+sotc  | TypeError: (void 0) is not a function
+sotc  |     at file:///app/dist/index.js:556:35
+sotc  |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+sotc  |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+sotc  |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+sotc  | 
+sotc  | Node.js v20.19.3
+sotc exited with code 0

@@ -8,11 +8,8 @@ mkdir -p /app/data/uploads
 chmod 755 /app/data/db
 chmod 755 /app/data/uploads
 
-# Initialize database if it doesn't exist
-if [ ! -f "/app/data/db/database.sqlite" ]; then
-    echo "Initializing database..."
-    npm run db:push
-fi
+# Note: Database initialization will happen automatically when the app starts
+# The application uses DatabaseStorage which handles table creation
 
 # Start the application
 exec npm start
