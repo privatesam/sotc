@@ -111,6 +111,7 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - July 02, 2025. Fixed valuation field currency conversion (pounds to pence)
 - July 02, 2025. Fixed image upload real-time display - images now appear immediately without refresh
 - July 02, 2025. Fixed brand name display on watch cards - now shows actual brand instead of "Brand Name"
+- July 02, 2025. Added watch-themed favicon matching the WIT button icon
 
 ## User Preferences
 
