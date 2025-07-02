@@ -398,8 +398,13 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                 {isEditing ? (
                   <Input
                     type="number"
-                    value={formData.valuation || ""}
-                    onChange={(e) => setFormData(prev => ({ ...prev, valuation: parseInt(e.target.value) || 0 }))}
+                    value={formData.valuation ? formData.valuation / 100 : ""}
+                    onChange={(e) => {
+                      const pounds = parseFloat(e.target.value) || 0;
+                      const pence = Math.round(pounds * 100);
+                      setFormData(prev => ({ ...prev, valuation: pence }));
+                    }}
+                    step="0.01"
                   />
                 ) : (
                   <p className="text-sm font-medium mt-1">

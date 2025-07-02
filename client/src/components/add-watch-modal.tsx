@@ -212,9 +212,14 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
               <Input
                 id="valuation"
                 type="number"
-                value={formData.valuation || ""}
-                onChange={(e) => setFormData(prev => ({ ...prev, valuation: parseInt(e.target.value) || 0 }))}
+                value={formData.valuation ? formData.valuation / 100 : ""}
+                onChange={(e) => {
+                  const pounds = parseFloat(e.target.value) || 0;
+                  const pence = Math.round(pounds * 100);
+                  setFormData(prev => ({ ...prev, valuation: pence }));
+                }}
                 placeholder="8500"
+                step="0.01"
               />
             </div>
             <div>
