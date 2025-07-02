@@ -125,7 +125,7 @@ npx esbuild server/index-production.ts \
   --packages=external \
   --bundle \
   --format=esm \
-  --outdir=dist \
+  --outfile=dist/index.js \
   --external:vite \
   --external:vite.config.ts \
   --external:tailwind.config.ts \
