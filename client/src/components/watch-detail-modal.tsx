@@ -13,7 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useBrands } from "@/hooks/use-brands";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
-import { Edit, Save, Trash2, Upload, X, Watch as WatchIcon, Calendar as CalendarIcon } from "lucide-react";
+import { Edit, Save, Trash2, Upload, X, Watch as WatchIcon, Calendar as CalendarIcon, Eye } from "lucide-react";
 import type { Watch, UpdateWatch } from "@shared/schema";
 
 interface WatchDetailModalProps {
@@ -28,6 +28,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
   const [formData, setFormData] = useState<Partial<UpdateWatch>>({});
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isWearCalendarOpen, setIsWearCalendarOpen] = useState(false);
   const [currentWatch, setCurrentWatch] = useState<Watch>(watch);
   
   const { toast } = useToast();
@@ -521,22 +522,51 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
               
               {currentWatch.wearDates && currentWatch.wearDates.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs text-slate-600 mb-2">Recent wear dates:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {currentWatch.wearDates
-                      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-                      .slice(0, 10)
-                      .map((date) => (
-                        <Badge
-                          key={date}
-                          variant="secondary"
-                          className="text-xs cursor-pointer hover:bg-red-100"
-                          onClick={() => removeWearDateMutation.mutate(date)}
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-slate-600">Wear History</p>
+                    <Popover open={isWearCalendarOpen} onOpenChange={setIsWearCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
                         >
-                          {new Date(date).toLocaleDateString('en-GB')}
-                          <X className="w-3 h-3 ml-1" />
-                        </Badge>
-                      ))}
+                          <Eye className="w-3 h-3 mr-1" />
+                          View Calendar
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-4" align="end">
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <h4 className="font-medium">Wear History Calendar</h4>
+                            <p className="text-xs text-slate-600">Green dates show when you wore this watch</p>
+                          </div>
+                          <Calendar
+                            mode="multiple"
+                            selected={currentWatch.wearDates?.map(date => new Date(date)) || []}
+                            onSelect={(dates) => {
+                              // Simple read-only calendar view
+                              // Users can use the WIT button and Add Date for modifications
+                            }}
+                            disabled={(date) => date > new Date()}
+                            modifiers={{
+                              worn: currentWatch.wearDates?.map(date => new Date(date)) || []
+                            }}
+                            modifiersStyles={{
+                              worn: {
+                                backgroundColor: '#10b981',
+                                color: 'white',
+                                fontWeight: 'bold'
+                              }
+                            }}
+                            className="rounded-md border"
+                          />
+                          <p className="text-xs text-center text-slate-500">
+                            Use WIT button or "Add Date" to modify wear history
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               )}
