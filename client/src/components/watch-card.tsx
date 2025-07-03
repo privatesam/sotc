@@ -42,14 +42,6 @@ export function WatchCard({ watch, onClick }: WatchCardProps) {
         )}
         
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
-        
-        {watch.valuation && (
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 price-overlay">
-            <span className="bg-white bg-opacity-90 text-slate-700 px-2 py-1 rounded-full text-xs font-medium">
-              {formatCurrency(watch.valuation)}
-            </span>
-          </div>
-        )}
       </div>
       
       <div className="p-4">
