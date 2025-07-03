@@ -10,7 +10,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useBrands } from "@/hooks/use-brands";
 import { insertWatchSchema } from "@shared/schema";
-import { Plus } from "lucide-react";
+import { Plus, Upload, X, Star } from "lucide-react";
 import type { InsertWatch } from "@shared/schema";
 
 interface AddWatchModalProps {
@@ -32,6 +32,8 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
   });
   const [newBrandName, setNewBrandName] = useState("");
   const [showAddBrand, setShowAddBrand] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -40,7 +42,8 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
   const addWatchMutation = useMutation({
     mutationFn: async (data: InsertWatch) => {
       const validatedData = insertWatchSchema.parse(data);
-      await apiRequest("POST", "/api/watches", validatedData);
+      const response = await apiRequest("POST", "/api/watches", validatedData);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watches"] });
@@ -50,6 +53,37 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
     onError: () => {
       toast({
         title: "Failed to add watch",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadImagesMutation = useMutation({
+    mutationFn: async (files: FileList) => {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('images', file);
+      });
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      const newImages = data.filePaths || [];
+      setUploadedImages(prev => [...prev, ...newImages]);
+      toast({ title: "Images uploaded successfully" });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to upload images",
         variant: "destructive",
       });
     },
@@ -89,7 +123,33 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
       return;
     }
 
-    addWatchMutation.mutate(formData as InsertWatch);
+    const watchData = {
+      ...formData,
+      images: uploadedImages,
+      primaryImageIndex: uploadedImages.length > 0 ? primaryImageIndex : undefined,
+    } as InsertWatch;
+
+    addWatchMutation.mutate(watchData);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      uploadImagesMutation.mutate(files);
+    }
+    // Reset the input
+    e.target.value = '';
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    if (primaryImageIndex >= index && primaryImageIndex > 0) {
+      setPrimaryImageIndex(prev => prev - 1);
+    }
+  };
+
+  const handleSetPrimary = (index: number) => {
+    setPrimaryImageIndex(index);
   };
 
   const handleAddBrand = () => {
@@ -256,6 +316,75 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
               onChange={(e) => setFormData(prev => ({ ...prev, details: e.target.value }))}
               placeholder="Additional notes about the watch..."
             />
+          </div>
+
+          <div>
+            <Label>Images</Label>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadImagesMutation.isPending}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploadImagesMutation.isPending ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+
+              {uploadedImages.length > 0 && (
+                <div className="grid grid-cols-3 gap-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Watch ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={primaryImageIndex === index ? "default" : "secondary"}
+                          onClick={() => handleSetPrimary(index)}
+                          className="h-6 px-2 text-xs"
+                        >
+                          <Star className="w-3 h-3" fill={primaryImageIndex === index ? "currentColor" : "none"} />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleRemoveImage(index)}
+                          className="h-6 px-2 text-xs"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      {primaryImageIndex === index && (
+                        <div className="absolute -top-2 -right-2 bg-yellow-500 text-white rounded-full p-1">
+                          <Star className="w-3 h-3" fill="currentColor" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {uploadedImages.length > 0 && (
+                <p className="text-sm text-gray-600">
+                  {uploadedImages.length} image(s) uploaded. Primary image marked with ⭐
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex space-x-3">
