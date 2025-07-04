@@ -190,6 +190,13 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
     }
   };
 
+  const handleSetPrimaryImage = (index: number) => {
+    updateWatchMutation.mutate({
+      id: watch.id,
+      primaryImageIndex: index,
+    });
+  };
+
   const isWornToday = () => {
     const today = new Date().toISOString().split('T')[0];
     return currentWatch.wearDates?.includes(today) || false;
@@ -284,18 +291,48 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
             
             {/* Thumbnail Navigation */}
             {currentWatch.images && currentWatch.images.length > 0 && (
-              <div className="flex space-x-3 overflow-x-auto pb-2">
-                {currentWatch.images.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Thumbnail ${index + 1}`}
-                    className={`w-16 h-16 object-cover rounded-lg border-2 cursor-pointer flex-shrink-0 transition-colors ${
-                      index === currentImageIndex ? 'border-primary' : 'border-slate-200 hover:border-primary'
-                    }`}
-                    onClick={() => setCurrentImageIndex(index)}
-                  />
-                ))}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">Images</span>
+                  {currentWatch.images.length > 1 && (
+                    <span className="text-xs text-slate-500">
+                      Image {(currentWatch.primaryImageIndex || 0) + 1} shown in collection
+                    </span>
+                  )}
+                </div>
+                <div className="flex space-x-3 overflow-x-auto pb-2">
+                  {currentWatch.images.map((image, index) => (
+                    <div key={index} className="relative flex-shrink-0">
+                      <img
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        className={`w-16 h-16 object-cover rounded-lg border-2 cursor-pointer transition-colors ${
+                          index === currentImageIndex ? 'border-primary' : 'border-slate-200 hover:border-primary'
+                        }`}
+                        onClick={() => setCurrentImageIndex(index)}
+                      />
+                      {/* Primary image indicator */}
+                      {index === (currentWatch.primaryImageIndex || 0) && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">★</span>
+                        </div>
+                      )}
+                      {/* Make primary button when editing */}
+                      {isEditing && index !== (currentWatch.primaryImageIndex || 0) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSetPrimaryImage(index);
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-slate-500 hover:bg-slate-600 rounded-full flex items-center justify-center transition-colors"
+                          title="Set as primary image"
+                        >
+                          <span className="text-white text-xs">★</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
