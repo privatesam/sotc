@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Calendar } from "@/components/ui/calendar";
 import { useBrands } from "@/hooks/use-brands";
 import type { Watch } from "@shared/schema";
 
@@ -24,7 +25,18 @@ export function WearAnalyticsModal({ watches, onClose }: WearAnalyticsModalProps
     })
     .sort((a, b) => b.wearDays - a.wearDays);
 
-  if (chartData.length === 0) {
+  // Collect all unique wear dates across all watches
+  const allWearDates = new Set<string>();
+  watches.forEach(watch => {
+    if (watch.wearDates) {
+      watch.wearDates.forEach(date => allWearDates.add(date));
+    }
+  });
+
+  // Convert to Date objects for calendar
+  const wearDatesArray = Array.from(allWearDates).map(dateStr => new Date(dateStr));
+
+  if (allWearDates.size === 0) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl">
@@ -50,6 +62,72 @@ export function WearAnalyticsModal({ watches, onClose }: WearAnalyticsModalProps
         </DialogHeader>
         
         <div className="mt-6 space-y-8">
+          {/* Calendar View */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Wear Calendar Overview</h3>
+            <div className="bg-slate-50 p-6 rounded-lg">
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex-1">
+                  <div className="flex justify-center">
+                    <Calendar
+                      mode="multiple"
+                      selected={wearDatesArray}
+                      disabled={(date) => date > new Date()}
+                      modifiers={{
+                        worn: wearDatesArray
+                      }}
+                      modifiersStyles={{
+                        worn: {
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          fontWeight: 'bold'
+                        }
+                      }}
+                      className="rounded-md border bg-white"
+                    />
+                  </div>
+                </div>
+                <div className="lg:w-80 space-y-4">
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="font-medium mb-2">Legend</h4>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-4 h-4 bg-green-500 rounded"></div>
+                      <span>Days you wore a watch</span>
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="font-medium mb-2">Calendar Stats</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Total wear days:</span>
+                        <span className="font-medium">{allWearDates.size}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>This month:</span>
+                        <span className="font-medium">
+                          {wearDatesArray.filter(date => {
+                            const now = new Date();
+                            return date.getMonth() === now.getMonth() && 
+                                   date.getFullYear() === now.getFullYear();
+                          }).length}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="font-medium mb-2">Usage Tips</h4>
+                    <ul className="text-sm text-slate-600 space-y-1">
+                      <li>• Green dates show tracking days</li>
+                      <li>• Spot missing days easily</li>
+                      <li>• Use WIT button for today</li>
+                      <li>• Add past dates in watch details</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Total Wear Days Chart */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Total Days Worn</h3>
