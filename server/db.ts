@@ -1,8 +1,17 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import * as schema from "@shared/schema";
+import { mkdirSync } from 'fs';
+import { dirname } from 'path';
 
-const sqlite = new Database('./database.sqlite');
+// Use environment variable for database path or fall back to development path
+const databasePath = process.env.DATABASE_URL?.replace('file:', '') || './database.sqlite';
+
+// Ensure the directory exists before creating the database
+const dbDir = dirname(databasePath);
+mkdirSync(dbDir, { recursive: true });
+
+const sqlite = new Database(databasePath);
 
 // Create tables if they don't exist
 sqlite.exec(`
@@ -32,6 +41,7 @@ sqlite.exec(`
     service_period INTEGER NOT NULL DEFAULT 5,
     valuation INTEGER,
     details TEXT,
+    history TEXT,
     images TEXT DEFAULT '[]',
     primary_image_index INTEGER DEFAULT 0,
     grid_position INTEGER,
