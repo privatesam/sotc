@@ -51,6 +51,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
       valuation: currentWatch.valuation || 0,
       servicePeriod: currentWatch.servicePeriod || 5,
       details: currentWatch.details || "",
+      history: currentWatch.history || "",
     });
   }, [currentWatch]);
 
@@ -656,6 +657,23 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
               ) : (
                 <p className="text-sm mt-1 whitespace-pre-wrap">
                   {currentWatch.details || "No additional details"}
+                </p>
+              )}
+            </div>
+
+            {/* History/Background */}
+            <div>
+              <Label>History & Background</Label>
+              {isEditing ? (
+                <Textarea
+                  rows={4}
+                  value={formData.history || ""}
+                  onChange={(e) => setFormData(prev => ({ ...prev, history: e.target.value }))}
+                  placeholder="Tell the story of this watch - where it came from, special occasions, memories, provenance..."
+                />
+              ) : (
+                <p className="text-sm mt-1 whitespace-pre-wrap">
+                  {currentWatch.history || "No history recorded"}
                 </p>
               )}
             </div>

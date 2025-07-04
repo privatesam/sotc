@@ -130,6 +130,10 @@ SOTC is a full-stack web application for managing watch collections. It allows u
 - July 02, 2025. Added collection image sharing feature - export clean grid layouts as images for social sharing
 - July 02, 2025. Completely redesigned image export with fixed-size layout to prevent text cutoff issues
 - July 02, 2025. Added comprehensive Docker deployment configuration with persistent data volumes and health monitoring
+- July 04, 2025. Added calendar view to analytics showing all "Wearing It Today" logs across all watches for easy gap identification
+- July 04, 2025. Fixed calendar date selector to stay open for multiple historical wear date selections
+- July 04, 2025. Added primary image selection functionality - users can choose which image appears on collection page
+- July 04, 2025. Added history/background field for recording watch stories, provenance, and special memories
 
 ## User Preferences
 

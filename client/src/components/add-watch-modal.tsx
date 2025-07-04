@@ -29,6 +29,7 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
     valuation: 0,
     servicePeriod: 5,
     details: "",
+    history: "",
   });
   const [newBrandName, setNewBrandName] = useState("");
   const [showAddBrand, setShowAddBrand] = useState(false);
@@ -315,6 +316,17 @@ export function AddWatchModal({ collectionId, onClose }: AddWatchModalProps) {
               value={formData.details || ""}
               onChange={(e) => setFormData(prev => ({ ...prev, details: e.target.value }))}
               placeholder="Additional notes about the watch..."
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="history">History & Background</Label>
+            <Textarea
+              id="history"
+              rows={4}
+              value={formData.history || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, history: e.target.value }))}
+              placeholder="Tell the story of this watch - where it came from, special occasions, memories, provenance..."
             />
           </div>
 

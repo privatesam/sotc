@@ -28,6 +28,7 @@ export const watches = sqliteTable("watches", {
   servicePeriod: integer("service_period").notNull().default(5), // years
   valuation: integer("valuation"), // in pence
   details: text("details"),
+  history: text("history"),
   images: text("images", { mode: "json" }).$type<string[]>().default([]),
   primaryImageIndex: integer("primary_image_index").default(0),
   gridPosition: integer("grid_position"),
