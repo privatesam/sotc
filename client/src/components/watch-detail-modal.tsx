@@ -186,7 +186,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
       const dateStr = date.toISOString().split('T')[0];
       addWearDateMutation.mutate(dateStr);
       setSelectedDate(undefined);
-      setIsCalendarOpen(false);
+      // Keep calendar open for multiple date selections
     }
   };
 
@@ -496,14 +496,48 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
                         <span className="sm:hidden">Add</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={handleAddWearDate}
-                        disabled={(date) => date > new Date()}
-                        initialFocus
-                      />
+                    <PopoverContent className="w-auto p-4" align="end">
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <h4 className="font-medium text-sm">Add Historical Wear Dates</h4>
+                          <p className="text-xs text-slate-600">Click dates to add them to your wear history</p>
+                        </div>
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={handleAddWearDate}
+                          disabled={(date) => date > new Date()}
+                          modifiers={{
+                            worn: currentWatch.wearDates?.map(date => new Date(date)) || []
+                          }}
+                          modifiersStyles={{
+                            worn: {
+                              backgroundColor: '#10b981',
+                              color: 'white',
+                              fontWeight: 'bold'
+                            }
+                          }}
+                          initialFocus
+                          className="rounded-md border"
+                        />
+                        <div className="text-center space-y-2">
+                          <div className="flex items-center justify-center gap-2 text-xs">
+                            <div className="w-3 h-3 bg-green-500 rounded"></div>
+                            <span>Already worn</span>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            Calendar stays open for multiple selections
+                          </p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setIsCalendarOpen(false)}
+                            className="w-full"
+                          >
+                            Done
+                          </Button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
