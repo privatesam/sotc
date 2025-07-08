@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useBrands } from "@/hooks/use-brands";
+import { useCollections } from "@/hooks/use-collections";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { Edit, Save, Trash2, Upload, X, Watch as WatchIcon, Calendar as CalendarIcon, Eye } from "lucide-react";
 import type { Watch, UpdateWatch } from "@shared/schema";
@@ -34,8 +35,10 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: brands = [] } = useBrands();
+  const { data: collections = [] } = useCollections();
 
   const currentBrand = brands.find(b => b.id === currentWatch.brandId);
+  const currentCollection = collections.find(c => c.id === currentWatch.collectionId);
 
   useEffect(() => {
     setCurrentWatch(watch);
@@ -45,6 +48,7 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
     setFormData({
       name: currentWatch.name,
       brandId: currentWatch.brandId,
+      collectionId: currentWatch.collectionId,
       model: currentWatch.model || "",
       purchaseDate: currentWatch.purchaseDate ? formatDate(new Date(currentWatch.purchaseDate)) : "",
       lastServiced: currentWatch.lastServiced ? formatDate(new Date(currentWatch.lastServiced)) : "",
@@ -400,6 +404,36 @@ export function WatchDetailModal({ watch, onClose, onSave }: WatchDetailModalPro
               </div>
             </div>
 
+            {/* Collection Info */}
+            <div>
+              <Label>Collection</Label>
+              {isEditing ? (
+                <div>
+                  <Select 
+                    value={formData.collectionId?.toString()} 
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, collectionId: parseInt(value) }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {collections.map(collection => (
+                        <SelectItem key={collection.id} value={collection.id.toString()}>
+                          {collection.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Moving this watch will preserve all details, images, and wear tracking data
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm font-medium mt-1">{currentCollection?.name || "Unknown"}</p>
+              )}
+            </div>
+
+            {/* Model Number */}
             <div>
               <Label>Model Number</Label>
               {isEditing ? (
